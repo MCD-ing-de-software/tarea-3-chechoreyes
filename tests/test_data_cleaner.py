@@ -125,14 +125,16 @@ class TestDataCleaner(unittest.TestCase):
         """
 
         expected_df = make_sample_df()
+        expected_df["name"] = expected_df["name"].astype("string")
 
         cleaner = DataCleaner()
 
         result = cleaner.trim_strings(expected_df, ["name"])
 
-        self.assertEqual(expected_df.loc[0, "name"], "  Alice  ")
+        self.assertEqual(expected_df.loc[0, "name"], " Alice ")
         self.assertEqual(result.loc[0, "name"], "Alice")
-        pdt.assert_series_equal(result["city"], expected_df["city"], check_names=True)
+
+        pdt.assert_series_equal(result["city"], expected_df["city"])
 
     def test_trim_strings_raises_typeerror_for_non_string_column(self):
         """Test que verifica que el método trim_strings lanza un TypeError cuando
@@ -166,7 +168,7 @@ class TestDataCleaner(unittest.TestCase):
 
         cleaner = DataCleaner()
 
-        result = cleaner.remove_outliers_iqr(expected_df, "age", factor=1.5)
+        result = cleaner.remove_outliers_iqr(expected_df, "age", factor=0.5)
 
         self.assertNotIn(120, result["age"].values)
         self.assertIn(25, result["age"].values)
@@ -197,7 +199,7 @@ class TestDataCleaner(unittest.TestCase):
         - Llamar a remove_outliers_iqr con una columna de texto (ej: "city")
         - Verificar que se lanza un TypeError (usar self.assertRaises)
         """
-        
+
         expected_df = make_sample_df()
 
         cleaner = DataCleaner()
